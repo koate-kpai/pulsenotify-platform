@@ -13,6 +13,8 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="PulseNotify API", version="0.1.0")
 
 # Dependency to get a DB session
+
+
 def get_db():
     db = SessionLocal()
     try:
@@ -20,16 +22,20 @@ def get_db():
     finally:
         db.close()
 
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "environment": os.getenv("APP_ENV", "development")}
+
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to PulseNotify – Your DevOps Journey Starts Here"}
 
+
 class ItemCreate(BaseModel):
     name: str
+
 
 @app.post("/items")
 def create_item(item: ItemCreate, db: Session = Depends(get_db)):
@@ -38,6 +44,7 @@ def create_item(item: ItemCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_item)
     return db_item
+
 
 @app.get("/items")
 def list_items(db: Session = Depends(get_db)):
