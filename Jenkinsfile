@@ -9,13 +9,18 @@ pipeline {
         }
         
         stage('Setup and Lint') {
-            // We tell Jenkins to run these specific steps inside a Python container
             agent {
                 docker { image 'python:3.11-slim' }
             }
             steps {
                 sh '''
-                    # We are now inside a Python container! No need for a venv.
+                    # Create a local virtual environment in the workspace
+                    python -m venv venv
+                    
+                    # Activate it
+                    . venv/bin/activate
+                    
+                    # Install and run (now it has full permissions!)
                     pip install flake8 requests
                     flake8 app
                 '''
