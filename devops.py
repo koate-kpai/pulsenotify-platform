@@ -7,15 +7,10 @@ import time
 import requests
 import sys
 
-# Check if we are in CI, use special Docker host URL if true
-if os.environ.get("CI") == "true":
-    API_URL = "http://host.docker.internal:8000"
-else:
-    API_URL = "http://localhost:8000"
+# Check for an injected URL from Jenkins, otherwise fall back to localhost
+API_URL = os.environ.get("API_URL", "http://localhost:8000")
+API_HEALTH_URL = f"{API_URL}/health"
 
-# ... the rest of your devops.py remains exactly the same ...
-
-API_HEALTH_URL = "http://localhost:8000/health"
 MAX_RETRIES = 30
 RETRY_DELAY = 2
 
