@@ -36,8 +36,13 @@ pipeline {
                 }
             }
             steps {
-                // We use your custom script to handle the Docker Compose lifecycle!
-                sh 'python3 devops.py' 
+                sh '''
+                    # docker:cli uses Alpine Linux. Install Python and requests first!
+                    apk add --no-cache python3 py3-requests
+                    
+                    # Now we can safely orchestrate the containers
+                    python3 devops.py
+                ''' 
             }
         }
     }
