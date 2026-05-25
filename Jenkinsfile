@@ -31,8 +31,8 @@ pipeline {
             agent {
                 docker {
                     image 'docker:cli'
-                    // We safely mount the socket ONLY for this specific step
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                    // Run as root to allow apk installs, and safely mount the socket
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
