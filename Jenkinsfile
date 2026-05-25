@@ -20,7 +20,7 @@ pipeline {
                     # Activate it
                     . venv/bin/activate
                     
-                    # Install and run (now it has full permissions!)
+                    # Install and run
                     pip install flake8 requests
                     flake8 app
                 '''
@@ -35,16 +35,15 @@ pipeline {
                     args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
-            // Set the CI flag so devops.py knows to use host.docker.internal
-            environment {
-                CI = "true"
-            }
             steps {
                 sh '''
                     # docker:cli uses Alpine Linux. Install Python and requests first!
                     apk add --no-cache python3 py3-requests
                     
-                    # Now we can safely orchestrate the containers
+                    # EXPORT the variable directly into the Alpine shell so Python cannot miss it
+                    export API_URL="http://host.docker.internal:8000"
+                    
+                    # Now orchestrate the containers
                     python3 devops.py
                 ''' 
             }
