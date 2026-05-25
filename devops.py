@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """Master automation script for PulseNotify local CI cycle."""
 
+import os
 import subprocess
 import time
-import sys
-import requests  #!/usr/bin/env python3
-
-"""Master automation script for PulseNotify local CI cycle."""
-
-import subprocess
-import time
-import sys
 import requests
+import sys
+
+# Check if we are in CI, use special Docker host URL if true
+if os.environ.get("CI") == "true":
+    API_URL = "http://host.docker.internal:8000"
+else:
+    API_URL = "http://localhost:8000"
+
+# ... the rest of your devops.py remains exactly the same ...
 
 API_HEALTH_URL = "http://localhost:8000/health"
 MAX_RETRIES = 30

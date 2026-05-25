@@ -35,6 +35,10 @@ pipeline {
                     args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
+            // Set the CI flag so devops.py knows to use host.docker.internal
+            environment {
+                CI = "true"
+            }
             steps {
                 sh '''
                     # docker:cli uses Alpine Linux. Install Python and requests first!
