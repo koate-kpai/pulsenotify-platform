@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -8,42 +8,37 @@ pipeline {
             }
         }
         
-        stage('Environment Setup') {
-            steps {
-                sh '''
-                    # Install requests library needed for devops.py
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install requests
-                '''
+        stage('Setup and Lint') {
+            // We tell Jenkins to run these specific steps inside a Python container
+            agent {
+                docker { image 'python:3.11-slim' }
             }
-        }
-
-        stage('Lint') {
             steps {
                 sh '''
-                    . venv/bin/activate
-                    pip install flake8
+                    # We are now inside a Python container! No need for a venv.
+                    pip install flake8 requests
                     flake8 app
                 '''
             }
         }
         
         stage('Containerized Testing') {
+            agent {
+                docker {
+                    image 'docker:cli'
+                    // We safely mount the socket ONLY for this specific step
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 // We use your custom script to handle the Docker Compose lifecycle!
-                sh '''
-                    . venv/bin/activate
-                    python3 devops.py
-                '''
+                sh 'python3 devops.py' 
             }
         }
     }
     
     post {
         always {
-            // Safety net: ensure the stack is down even if the script crashes
-            sh 'docker compose down -v || true'
             cleanWs()
         }
     }
