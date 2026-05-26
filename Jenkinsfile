@@ -48,6 +48,31 @@ pipeline {
                 ''' 
             }
         }
+        
+        stage('Docker Build & Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKERHUB_USER',
+                    passwordVariable: 'DOCKERHUB_PASS'
+                )]) {
+                    sh '''
+                        # Log into Docker Hub
+                        echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+
+                        # Build with two tags: latest and the build number
+                        docker build -t $DOCKERHUB_USER/pulsenotify:$BUILD_ID -t $DOCKERHUB_USER/pulsenotify:latest .
+
+                        # Push both tags
+                        docker push $DOCKERHUB_USER/pulsenotify:$BUILD_ID
+                        docker push $DOCKERHUB_USER/pulsenotify:latest
+
+                        # Clean up the local images to free space
+                        docker rmi $DOCKERHUB_USER/pulsenotify:$BUILD_ID $DOCKERHUB_USER/pulsenotify:latest || true
+                    '''
+                }
+            }
+        }
     }
     
     post {
@@ -56,3 +81,4 @@ pipeline {
         }
     }
 }
+
