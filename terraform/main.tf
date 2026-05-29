@@ -10,7 +10,7 @@ terraform {
     bucket         = "pulsenotify-tfstate-dn036q"
     key            = "pulsenotify/terraform.tfstate"
     region         = "us-east-1"
-    dynamodb_table = "terraform-state-locks"
+    use_lockfile   = true
     encrypt        = true
   }
 }
